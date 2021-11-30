@@ -20,6 +20,6 @@
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/OmerBresinski/fireberry-component.git"
+        "url": "git+https://github.com/powerlink/create-fireberry-component"
     }
 }
