@@ -3,6 +3,7 @@ const inquirer = require("inquirer");
 const { QUESTIONS, COMPONENT_TYPE } = require("./questions");
 const { writeFileSync, mkdirSync } = require("fs");
 const Component = require("./config/fireberryComponent");
+const TypescriptComponent = require("./config/fireberryTypescriptComponent");
 const DesignLibraryComponent = require("./config/fireberryDesignLibraryComponent");
 
 const initializeComponent = async () => {
@@ -34,11 +35,12 @@ const initializeComponent = async () => {
         componentType,
       });
     } else {
+      const withTypescript = typescript === "Yes";
       const { parsedTest } = getTest({
         name,
         withTest,
         path,
-        testFile: Component.test,
+        testFile: withTypescript ? TypescriptComponent.test : Component.test,
         componentType,
       });
       createComponent({
@@ -48,7 +50,7 @@ const initializeComponent = async () => {
         index,
         test: parsedTest,
         path,
-        isTypescript: false,
+        isTypescript: withTypescript,
       });
     }
   } catch (ex) {
@@ -62,6 +64,7 @@ const getComponentTemplate = ({
   componentType,
   typescript,
 }) => {
+  const withTypescript = typescript === "Yes";
   if (componentType === COMPONENT_TYPE.designSystem) {
     const parsedIndexFileContent = DesignLibraryComponent.index.replace(
       /NAME/g,
@@ -86,18 +89,25 @@ const getComponentTemplate = ({
       style: parsedStyleFileContent,
     };
   }
-  const parsedIndexFileContent = Component.index.replace(/NAME/g, name);
-  const parsedStyleFileContent = Component.style.replace(/NAME/g, name);
+  const FireberryComponent = withTypescript ? TypescriptComponent : Component;
+  const parsedIndexFileContent = FireberryComponent.index.replace(
+    /NAME/g,
+    name
+  );
+  const parsedStyleFileContent = FireberryComponent.style.replace(
+    /NAME/g,
+    name
+  );
   if (withRedux === "Yes") {
     const parsedComponentWithReduxFileContent =
-      Component.componentWithRedux.replace(/NAME/g, name);
+      FireberryComponent.componentWithRedux.replace(/NAME/g, name);
     return {
       component: parsedComponentWithReduxFileContent,
       style: parsedStyleFileContent,
       index: parsedIndexFileContent,
     };
   } else {
-    const parsedComponentFileContent = Component.component.replace(
+    const parsedComponentFileContent = FireberryComponent.component.replace(
       /NAME/g,
       name
     );
